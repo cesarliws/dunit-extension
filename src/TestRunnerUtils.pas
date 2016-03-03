@@ -48,6 +48,7 @@ type
 {$ENDIF}
 
     class function GetTestOutputDirectory: string; static;
+    class procedure PauseWhenConsoleInsideIDE; static; static;
 
     class procedure Sort(ATest: ITest); static;
 
@@ -113,6 +114,15 @@ begin
   end;
 end;
 
+class procedure TTestRunnerUtils.PauseWhenConsoleInsideIDE;
+begin
+{$WARN  SYMBOL_PLATFORM OFF}
+  if (DebugHook <> 0) and (TTestRunnerUtils.GetRunMode = rmText) then
+  begin
+    Readln;
+  end;
+end;
+
 class function TTestRunnerUtils.RunTextMode: TTestResult;
 begin
   if not IsConsole then
@@ -121,6 +131,7 @@ begin
   end;
   WriteLn('Running tests for: ' + ExtractFileName(GetModuleName(HInstance)));
   Result := TextTestRunner.RunRegisteredTests();
+  TTestRunnerUtils.PauseWhenConsoleInsideIDE;
 end;
 
 class function TTestRunnerUtils.RunXmlMode: TTestResult;
