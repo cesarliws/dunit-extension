@@ -2,6 +2,13 @@ unit TestRunnerUtils;
 
 interface
 uses
+{$IFDEF RELEASE}
+  {$UNDEF TESTINSIGHT}
+{$ELSE}
+  {$IFDEF TESTINSIGHT}
+  TestInsight.DUnit,
+  {$ENDIF}
+{$ENDIF}
   TestFramework,
   GUITestRunner,
   CIXMLTestRunner,
@@ -15,7 +22,7 @@ const
   SUREFIRE_TESTRESULT_PREFIX = 'TEST-';
 
 type
-  TRunMode = (rmGUI, rmText, rmXML);
+  TRunMode = (rmGUI, rmText, rmXML, rmTestInsight);
 
   TTestRunnerUtils = class
   private
@@ -25,6 +32,9 @@ type
     class function RunGUIMode: TTestResult;
     class function RunTextMode: TTestResult;
     class function RunXmlMode: TTestResult;
+{$IFDEF TESTINSIGHT}
+    class function RunTestInsightMode: TTestResult; static;
+{$ENDIF}
 
     class function GetTestOutputDirectory: string;
 
@@ -71,9 +81,16 @@ var
   vTestResult: TTestResult;
 begin
   case ARunMode of
-    rmGUI : vTestResult := RunGUIMode;
-    rmText: vTestResult := RunTextMode;
-    rmXML : vTestResult := RunXmlMode;
+    rmGUI:
+      vTestResult := RunGUIMode;
+    rmText:
+      vTestResult := RunTextMode;
+    rmXML:
+      vTestResult := RunXmlMode;
+{$IFDEF TESTINSIGHT}
+    rmTestInsight:
+      vTestResult := RunTestInsightMode;
+{$ENDIF}
   else
     raise Exception.CreateFmt('RunMode "%s" não suportado.', [GetEnumName(TypeInfo(TRunMode), Ord(ARunMode))]);
   end;
@@ -113,6 +130,15 @@ begin
     raise Exception.CreateFmt('Falha ao criar outputdirectory "%s". Erro: %s', [vXmlOutputPath, SysErrorMessage(GetLastError)]);
   end;
 end;
+
+{$IFDEF TESTINSIGHT}
+class function TTestRunnerUtils.RunTestInsightMode: TTestResult;
+begin
+  TestInsight.DUnit.RunRegisteredTests();
+  // TODO : Implement result in DSharp
+  Result := TTestResult.Create;
+end;
+{$ENDIF}
 
 class procedure TTestRunnerUtils.Sort(ATest: ITest);
 begin
@@ -172,6 +198,13 @@ end;
 
 class function TTestRunnerUtils.GetRunMode: TRunMode;
 begin
+{$IFDEF DEBUG}
+  {$IFDEF TESTINSIGHT}
+  Result := rmTestInsight;
+  Exit;
+  {$ENDIF}
+{$ENDIF}
+
   Result := rmGUI;
   if MustRunAsXml then
   begin
