@@ -1,6 +1,9 @@
 unit TestRunnerUtils;
 
 interface
+
+{$DEFINE CUSTOM_REPORT_TARGET}
+
 uses
 {$IFDEF RELEASE}
   {$UNDEF TESTINSIGHT}
@@ -17,9 +20,17 @@ uses
   Classes,
   Windows;
 
+{$IFDEF CUSTOM_REPORT_TARGET}
+const
+  SUREFIRE_OUTPUT_DIRECTORY = 'DUnitOutput\';
+  SUREFIRE_TESTRESULT_PREFIX = '';
+  SUREFIRE_TESTRESULT_SUFIX = '-DUnitTestReport.xml';
+{$ELSE}
 const
   SUREFIRE_OUTPUT_DIRECTORY = '..\target\surefire-reports\';
   SUREFIRE_TESTRESULT_PREFIX = 'TEST-';
+  SUREFIRE_TESTRESULT_SUFIX = '-Out.xml';
+{$ENDIF}
 
 type
   TRunMode = (rmGUI, rmText, rmXML, rmTestInsight);
