@@ -37,32 +37,32 @@ type
 
   TTestRunnerUtils = class
   private
-    class function MustRunAsXml: Boolean;
-    class function MustRunAsText: Boolean;
+    class function MustRunAsXml: Boolean; static;
+    class function MustRunAsText: Boolean; static;
 
-    class function RunGUIMode: TTestResult;
-    class function RunTextMode: TTestResult;
-    class function RunXmlMode: TTestResult;
+    class function RunGUIMode: TTestResult; static;
+    class function RunTextMode: TTestResult; static;
+    class function RunXmlMode: TTestResult; static;
 {$IFDEF TESTINSIGHT}
     class function RunTestInsightMode: TTestResult; static;
 {$ENDIF}
 
-    class function GetTestOutputDirectory: string;
+    class function GetTestOutputDirectory: string; static;
 
-    class procedure Sort(ATest: ITest);
+    class procedure Sort(ATest: ITest); static;
 
-    class procedure QuickSort(const AList: IInterfaceList; L, R: Integer);
+    class procedure QuickSort(const AList: IInterfaceList; L, R: Integer); static;
   public
-    class function GetRunMode: TRunMode;
-    class function RunRegisteredTests(): Integer;overload;
-    class function RunRegisteredTests(ARunMode: TRunMode): Integer;overload;
-    class procedure SortTests;
+    class function GetRunMode: TRunMode; static;
+    class function RunRegisteredTests(): Integer;overload; static;
+    class function RunRegisteredTests(ARunMode: TRunMode): Integer;overload; static;
+    class procedure SortTests; static;
   end;
 
   TFileUtils = class
   public
-    class function BuildFileList(const Path, AExtension: string; const Attr: Integer; const List: TStrings; ARecursive: Boolean): Boolean;
-    class procedure DeleteAllFiles(const Path, AExtension: string);
+    class function BuildFileList(const Path, AExtension: string; const Attr: Integer; const List: TStrings; ARecursive: Boolean): Boolean; static;
+    class procedure DeleteAllFiles(const Path, AExtension: string); static;
   end;
 
 implementation
@@ -77,7 +77,7 @@ var
 begin
   vRunMode := GetRunMode;
 
-  Result := Self.RunRegisteredTests(vRunMode);
+  Result := TTestRunnerUtils.RunRegisteredTests(vRunMode);
 end;
 
 class function TTestRunnerUtils.RunGUIMode: TTestResult;
@@ -291,7 +291,7 @@ var
 begin
   vFileList := TStringList.Create;
   try
-    Self.BuildFileList(Path, AExtension, faAnyFile, vFileList, False);
+    TFileUtils.BuildFileList(Path, AExtension, faAnyFile, vFileList, False);
 
     for i := 0 to vFileList.Count-1 do
     begin
